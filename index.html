@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Typing Practice</title>
+    <style>
+        body, textarea, div {
+            font-size: 24px;
+            font-family: Calibri, Verdana, Tahoma, Geneva, sans-serif;
+            background-color: #1E1E1E;
+            color: #D4D4D4;
+        }
+        #textAreaContainer {
+            display: flex;
+            height: 90vh;
+            border: 1px solid #555;
+        }
+        textarea {
+            flex: 1;
+            height: 100%;
+            color: #D4D4D4;
+        }
+        #sourceDisplay {
+            flex: 1;
+            height: 100%;
+            overflow-y: auto;
+            display: none;
+            /* color: black; */
+            white-space: pre-wrap;
+            background-color: #1E1E1E;
+            color: #D4D4D4;
+            outline: none;
+        }
+        #sourceDisplay span.correct { color: green; }
+        #sourceDisplay span.incorrect { color: red; }
+        #timer, #cpm {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>Time: <span id="timer">0</span></div>
+    <div>CPM: <span id="cpm">0</span></div>
+    <div id="textAreaContainer">
+        <textarea id="sourceText" placeholder="Paste text here"></textarea>
+        <div id="sourceDisplay"></div>
+        <textarea id="userText"></textarea>
+    </div>
+
+    <script>
+        let timer = 0;
+        let intervalId;
+        const sourceText = document.getElementById('sourceText');
+        const userText = document.getElementById('userText');
+        const sourceDisplay = document.getElementById('sourceDisplay');
+        const timerEl = document.getElementById('timer');
+        const cpmEl = document.getElementById('cpm');
+
+        function updateUI() {
+            const sText = sourceText.value;
+            const uText = userText.value;
+            let correct = 0;
+            let output = '';
+            for (let i = 0; i < sText.length; i++) {
+                if (i < uText.length) {
+                    if (sText[i] === uText[i]) {
+                        output += `<span class="correct">${sText[i]}</span>`;
+                        correct++;
+                    } else {
+                        output += `<span class="incorrect">${sText[i]}</span>`;
+                    }
+                } else {
+                    output += sText[i];
+                }
+            }
+            sourceDisplay.innerHTML = output;
+            cpmEl.innerText = Math.floor((correct / timer) * 60);
+        }
+
+        userText.addEventListener('focus', () => {
+            timer = 0;
+            timerEl.innerText = timer;
+            sourceText.style.display = "none";
+            sourceDisplay.style.display = "block";
+            updateUI();
+            intervalId = setInterval(() => {
+                timer++;
+                timerEl.innerText = timer;
+                updateUI();
+            }, 1000);
+        });
+
+        userText.addEventListener('blur', () => {
+            clearInterval(intervalId);
+            sourceText.style.display = "block";
+            sourceDisplay.style.display = "none";
+        });
+
+        sourceText.addEventListener('input', () => {
+            /* userText.value = ''; */
+            updateUI();
+        });
+
+        userText.addEventListener('input', updateUI);
+    </script>
+</body>
+</html>
